@@ -4,6 +4,8 @@ Servidor [MCP](https://modelcontextprotocol.io) que permite a Claude modelar en 
 
 > Ejemplo: *"Crea una casa de 10 × 8 m con muros de 2,6 m, una puerta al centro de la fachada sur, dos ventanas por lado, una losa y un techo a dos aguas de 25°. Después muéstrame una vista 3D desde el frente."*
 
+**¿Eres una IA o quieres los mejores resultados?** Lee la [Guía para asistentes de IA](GUIA_IA.md): flujo de trabajo, ahorro de tokens, medidas de referencia, recetas y lista de control.
+
 ## Cómo funciona
 
 ```
@@ -111,6 +113,8 @@ Habla con Claude en lenguaje normal. Funciona mejor si:
 - Das medidas en metros y una referencia de origen ("esquina en 0,0", "fachada principal hacia el sur").
 - Pides una sola imagen al final (`export_view_image`). Cada imagen consume bastantes tokens.
 - Revisas el resultado en Revit: cada acción queda en **Deshacer** como `MCP: <herramienta>` y se puede revertir.
+
+El servidor MCP expone la [guía para IA](GUIA_IA.md) como recurso `revit://guia-ia`. Para modelos grandes, adjúntala al chat (en Claude Desktop, desde el botón **+** → revit) para que Claude siga el flujo recomendado.
 
 Ejemplos:
 
@@ -224,9 +228,12 @@ Las variables que lee Revit deben existir antes de abrirlo (variables de entorno
 
 ## Para desarrolladores y asistentes de IA
 
+Esta sección explica el código. Para **usar** el MCP de forma eficiente, consulta la [Guía para asistentes de IA](GUIA_IA.md).
+
 ### Estructura
 
 ```
+GUIA_IA.md                    Guía de uso para asistentes de IA (también expuesta como recurso MCP)
 revit-addin/
 ├── App.cs                    IExternalApplication: crea el panel e inicia el servidor
 ├── ToggleServerCommand.cs    Botón que inicia o detiene el servidor
@@ -263,7 +270,8 @@ Las claves de los resultados van en `snake_case`. Los errores llevan mensajes en
 
 1. En `revit-addin/Tools/`, crea una clase que implemente `IMcpTool`, con un `Name` en `snake_case`. Se registra sola por reflexión.
 2. En `mcp-server/revit_mcp/server.py`, agrega una función `@mcp.tool()` con el **mismo nombre** que llame a `call("<nombre>", ...)`. Su docstring es lo que lee Claude: explica unidades, valores por defecto y cuándo usarla.
-3. Compila e instala (`dotnet build revit-addin -c Release -p:Deploy=true`, con Revit cerrado) y reinicia Claude Desktop.
+3. Si cambia la forma recomendada de modelar, actualiza `GUIA_IA.md` y el resumen de `INSTRUCTIONS` en `server.py`, que Claude recibe siempre.
+4. Compila e instala (`dotnet build revit-addin -c Release -p:Deploy=true`, con Revit cerrado) y reinicia Claude Desktop.
 
 Para verificar que los nombres coinciden entre C# y Python:
 

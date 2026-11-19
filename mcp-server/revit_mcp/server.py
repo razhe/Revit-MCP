@@ -25,14 +25,33 @@ Convenciones:
   generic_models, planting, o cualquier nombre OST_*.
 
 Flujo recomendado:
-1. get_model_info y list_types para conocer niveles y tipos disponibles antes de crear.
-2. Crear muros, pisos, techos, puertas, ventanas y mobiliario.
-3. export_view_image (por ejemplo, de una vista 3D creada con create_3d_view) para revisar el resultado.
+1. Planifica en texto: origen, niveles y coordenadas de cada volumen (fachada principal en y = 0, mirando a -y).
+2. get_model_info y list_types (solo las categorías que usarás) una vez; reutiliza nombres e ids.
+3. Orden: niveles, muros con top_level, escaleras, losas con holes, puertas y ventanas, techo y attach_walls,
+   habitaciones, barandas y materiales (set_material).
+4. Verifica con las respuestas (area_m2, bounds, dependents_copied) en lugar de imágenes.
+5. Al final, create_3d_view con from_direction y una sola export_view_image de 800-1000 px.
+
+Ahorro de tokens: agrupa muros en polilíneas, pasa varios ids a set_parameter y set_material, evita
+get_element_info salvo que necesites un nombre de parámetro, y lee los errores: listan las opciones válidas.
+Guía completa con medidas de referencia, recetas y lista de control: recurso revit://guia-ia.
 
 Cada operación queda en el historial de Deshacer de Revit como "MCP: <herramienta>"."""
 
+GUIDE_PATH = Path(__file__).resolve().parents[2] / "GUIA_IA.md"
+
 mcp = MCPServer("revit", instructions=INSTRUCTIONS)
 revit = RevitConnection.from_environment()
+
+
+@mcp.resource(
+    "revit://guia-ia",
+    name="guia-ia",
+    description="Guía para usar el MCP de Revit con resultados profesionales y pocos tokens.",
+    mime_type="text/markdown",
+)
+def guide() -> str:
+    return GUIDE_PATH.read_text(encoding="utf-8")
 
 
 async def call(command: str, **params: Any) -> Any:
