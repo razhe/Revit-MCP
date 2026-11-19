@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <PlatformTarget>x64</PlatformTarget>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>RevitMcp</RootNamespace>
+    <AssemblyName>RevitMcp</AssemblyName>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <RevitVersion>2027</RevitVersion>
+    <AddinsFolder>$(AppData)\Autodesk\Revit\Addins\$(RevitVersion)</AddinsFolder>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Nice3point.Revit.Api.RevitAPI" Version="$(RevitVersion).*" ExcludeAssets="runtime" PrivateAssets="all" />
+    <PackageReference Include="Nice3point.Revit.Api.RevitAPIUI" Version="$(RevitVersion).*" ExcludeAssets="runtime" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.14.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="RevitMcp.addin" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <Target Name="DeployAddin" AfterTargets="Build" Condition="'$(Deploy)' == 'true'">
+    <ItemGroup>
+      <AddinBinaries Include="$(OutDir)**\*.*" Exclude="$(OutDir)RevitMcp.addin" />
+    </ItemGroup>
+    <Copy SourceFiles="@(AddinBinaries)" DestinationFolder="$(AddinsFolder)\RevitMcp\%(RecursiveDir)" />
+    <Copy SourceFiles="$(OutDir)RevitMcp.addin" DestinationFolder="$(AddinsFolder)" />
+    <Message Importance="high" Text="Add-in instalado en $(AddinsFolder)" />
+  </Target>
+
+</Project>

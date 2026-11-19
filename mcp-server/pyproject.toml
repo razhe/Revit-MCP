@@ -1,0 +1,13 @@
+[project]
+name = "revit-mcp"
+version = "0.1.0"
+description = "Servidor MCP que conecta Claude con Autodesk Revit"
+requires-python = ">=3.11"
+dependencies = ["mcp>=2.3,<3"]
+
+[project.scripts]
+revit-mcp = "revit_mcp.server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
